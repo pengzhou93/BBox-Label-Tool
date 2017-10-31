@@ -66,6 +66,12 @@ class LabelTool():
         self.ldBtn = Button(self.frame, text = "Load", command = self.loadDir)
         self.ldBtn.grid(row = 0, column = 2,sticky = W+E)
 
+        self.out_label = Label(self.frame, text = "Label Dir:")
+        self.out_label.grid(row = 8, column = 0, sticky = E)
+        self.label_entry = Entry(self.frame)
+        self.label_entry.grid(row = 8, column = 1, sticky = W+E)
+
+
         # main panel for labeling
         self.mainPanel = Canvas(self.frame, cursor='tcross')
         self.mainPanel.bind("<Button-1>", self.mouseClick)
@@ -142,19 +148,22 @@ class LabelTool():
 
     def loadDir(self, dbg = False):
         if not dbg:
-            s = self.entry.get()
+            imageDir = self.entry.get()
+            labelDir = self.label_entry.get()
             self.parent.focus()
-            self.category = int(s)
+            # self.category = int(s)
         else:
-            s = r'D:\workspace\python\labelGUI'
+            imageDir = r'D:\workspace\python\labelGUI'
 ##        if not os.path.isdir(s):
 ##            tkMessageBox.showerror("Error!", message = "The specified dir doesn't exist!")
 ##            return
         # get image list
-        self.imageDir = os.path.join(r'./Images', '%03d' %(self.category))
-        #print self.imageDir 
+        # self.imageDir = os.path.join(r'./Images', '%03d' %(self.category))
+        self.imageDir = imageDir
+
+        #print self.imageDir
         #print self.category
-        self.imageList = glob.glob(os.path.join(self.imageDir, '*.JPG'))
+        self.imageList = glob.glob(os.path.join(self.imageDir, '*.jpg'))
         #print self.imageList
         if len(self.imageList) == 0:
             print 'No .JPG images found in the specified dir!'
@@ -165,7 +174,11 @@ class LabelTool():
         self.total = len(self.imageList)
 
          # set up output dir
-        self.outDir = os.path.join(r'./Labels', '%03d' %(self.category))
+        # self.outDir = os.path.join(r'./Labels', '%03d' %(self.category))
+        if not labelDir:
+            print('Please input output label dir.')
+            return
+        self.outDir = labelDir
         if not os.path.exists(self.outDir):
             os.mkdir(self.outDir)
 
@@ -190,7 +203,7 @@ class LabelTool():
             self.egLabels[i].config(image = self.egList[-1], width = SIZE[0], height = SIZE[1])
 
         self.loadImage()
-        print '%d images loaded from %s' %(self.total, s)
+        print '%d images loaded from %s' %(self.total, imageDir)
 
     def loadImage(self):
         # load image
@@ -241,7 +254,10 @@ class LabelTool():
         else:
             x1, x2 = min(self.STATE['x'], event.x), max(self.STATE['x'], event.x)
             y1, y2 = min(self.STATE['y'], event.y), max(self.STATE['y'], event.y)
-            self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
+
+            self.bboxList.append((x1, y1, x2, y2, self.currentLabelclassId))
+            # self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
+
             self.bboxIdList.append(self.bboxId)
             self.bboxId = None
             self.listbox.insert(END, '%s : (%d, %d) -> (%d, %d)' %(self.currentLabelclass,x1, y1, x2, y2))
@@ -310,6 +326,7 @@ class LabelTool():
 
     def setClass(self):
     	self.currentLabelclass = self.classcandidate.get()
+        self.currentLabelclassId = self.currentLabelclass.split(' ')[-1]
     	print 'set label class to :',self.currentLabelclass
 
 ##    def setImage(self, imagepath = r'test2.png'):
