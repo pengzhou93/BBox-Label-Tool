@@ -255,6 +255,7 @@ class LabelTool():
             x1, x2 = min(self.STATE['x'], event.x), max(self.STATE['x'], event.x)
             y1, y2 = min(self.STATE['y'], event.y), max(self.STATE['y'], event.y)
 
+            # write label to file
             self.bboxList.append((x1, y1, x2, y2, self.currentLabelclassId))
             # self.bboxList.append((x1, y1, x2, y2, self.currentLabelclass))
 
